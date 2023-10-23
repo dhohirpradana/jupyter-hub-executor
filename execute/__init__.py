@@ -14,15 +14,13 @@ kernel = os.environ.get('JUPYTERHUB_KERNEL')
 
 api_url = f"{jupyterhub_url}/hub/api"
 
-
 async def execute(index, username, cell_source):
     uuid4 = uuid.uuid4()
-
     now = datetime.now()
-
     formatted_date = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-    uri = f"{jupyterhub_ws}/user/yusuf/api/kernels/{kernel}/channels?session_id={uuid4}&token={token}"
+    uri = f"{jupyterhub_ws}/user/{username}/api/kernels/{kernel}/channels?session_id={uuid4}&token={token}"
+    print("uri", uri)
 
     async with websockets.connect(uri) as websocket:
         message = {
@@ -133,13 +131,18 @@ def handler(request):
 
                 for index, cell in enumerate(cells):
                     cell_source = cell['source']
-                    print(cell_source)
+                    cell_type = cell['cell_type']
+                    
+                    print("cell_type", cell_type)
 
-                    async def execute():
-                        await execute(index, user, cell_source)
+                    if cell_type == "code":
+                        async def execute():
+                            await execute(index, user, cell_source)
 
-                    loop = asyncio.get_event_loop()
-                    loop.run_until_complete(execute())
+                        loop = asyncio.get_event_loop()
+                        loop.run_until_complete(execute())
+                    else:
+                        pass
 
                 return jsonify({"message": "Finished"}), 200
 
