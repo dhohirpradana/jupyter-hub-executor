@@ -6,7 +6,8 @@ import requests
 import asyncio
 from flask import jsonify
 import os
-import threading
+
+from kernel import restart as restart_kernel
 
 jupyterhub_url = os.environ.get('JUPYTERHUB_URL')
 jupyterhub_ws = os.environ.get('JUPYTERHUB_WS')
@@ -74,6 +75,7 @@ async def execute_ws(index, username, cell_source, kernel):
             # print("Content", content)
 
             if msg_state == 'input_request':
+                restart_kernel(kernel, username)
                 return {'status': 'error', 'msg': 'input promt:'}
 
             if msg_state == 'error':
@@ -147,10 +149,9 @@ def handler(request):
                 # print(response)
 
                 now = datetime.now()
-                formatted_date = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
                 try:
-                    sessions_uri = f"{jupyterhub_url}/user/{user}/api/sessions?{formatted_date}"
+                    sessions_uri = f"{jupyterhub_url}/user/{user}/api/sessions?{now}"
                     # print(sessions_uri)
 
                     rr = requests.get(sessions_uri, headers={
