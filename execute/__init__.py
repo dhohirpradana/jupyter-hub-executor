@@ -2,6 +2,7 @@ import websockets
 import json
 import uuid
 from datetime import datetime
+import time
 import requests
 import asyncio
 from flask import jsonify
@@ -208,7 +209,7 @@ def handler(request):
                             pass
                         else:
                             solr_handler(
-                                {"scheduler_id": scheduler_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
+                                {"scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
                                     results, indent=4, sort_keys=True, default=str)})
                             return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
@@ -216,7 +217,7 @@ def handler(request):
                         break
 
                 solr_handler(
-                    {"scheduler_id": scheduler_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
+                    {"scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
                         results, indent=4, sort_keys=True, default=str)})
                 return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
