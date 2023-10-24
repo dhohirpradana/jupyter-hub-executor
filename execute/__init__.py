@@ -6,6 +6,7 @@ import requests
 import asyncio
 from flask import jsonify
 import os
+from solr import handler as solr_handler
 
 from kernel import restart as restart_kernel
 
@@ -199,11 +200,13 @@ def handler(request):
                         if index+1 != len(cells):
                             pass
                         else:
+                            solr_handler("Test")
                             return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
                     if results[-1]['status'] == 'error':
                         break
-
+                
+                solr_handler("Test")
                 return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
             except Exception as e:
