@@ -150,22 +150,25 @@ def handler(request):
                 formatted_date = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
                 try:
-                    kernels_uri = f"{jupyterhub_url}/user/{user}/api/sessions?{formatted_date}"
-                    print(kernels_uri)
+                    sessions_uri = f"{jupyterhub_url}/user/{user}/api/sessions?{formatted_date}"
+                    # print(sessions_uri)
 
-                    rr = requests.get(kernels_uri, headers={
+                    rr = requests.get(sessions_uri, headers={
                         'Authorization': f'token {token}'}, json={})
                     rr.raise_for_status()
 
                     responser = rr.json()
-                    print(responser)
+                    # print(responser)
+                    
+                    if not len(responser):
+                        return jsonify({"message": "Unable get sessions!, no sessions!"}), 400
 
                     kernel_ids = [item["kernel"]["id"]
                                   for item in responser if item["path"] == notebook_name]
                     print(kernel_ids)
 
                     if not len(kernel_ids):
-                        return jsonify({"message": "Unable get sessions!, empty!"}), 400
+                        return jsonify({"message": "Unable get sessions!, no kernels!"}), 400
                     else:
                         kernel = kernel_ids[0]
 
