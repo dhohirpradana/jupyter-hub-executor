@@ -112,12 +112,12 @@ def handler(request):
     if "notebook-name" not in body:
         return jsonify({"message": "notebook-name is required!"}), 400
 
-    if "pipeline-id" not in body:
-        return jsonify({"message": "pipeline-id is required!"}), 400
+    if "scheduler-id" not in body:
+        return jsonify({"message": "scheduler-id is required!"}), 400
 
     user = body["user"]
     notebook_name = body["notebook-name"]
-    pipeline_id = body["pipeline-id"]
+    scheduler_id = body["scheduler-id"]
 
     if user is None:
         return jsonify({"message": "user is required!"}), 400
@@ -125,8 +125,8 @@ def handler(request):
     if notebook_name is None:
         return jsonify({"message": "notebook-name is required!"}), 400
 
-    if pipeline_id is None:
-        return jsonify({"message": "pipeline-id is required!"}), 400
+    if scheduler_id is None:
+        return jsonify({"message": "scheduler-id is required!"}), 400
 
     try:
         r = requests.get(api_url + '/users',
@@ -208,7 +208,7 @@ def handler(request):
                             pass
                         else:
                             solr_handler(
-                                {"pipeline_id": pipeline_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
+                                {"scheduler_id": scheduler_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
                                     results, indent=4, sort_keys=True, default=str)})
                             return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
@@ -216,7 +216,7 @@ def handler(request):
                         break
 
                 solr_handler(
-                    {"pipeline_id": pipeline_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
+                    {"scheduler_id": scheduler_id, "timestamp": f"{datetime.now()}", "results": json.dumps(
                         results, indent=4, sort_keys=True, default=str)})
                 return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
 
