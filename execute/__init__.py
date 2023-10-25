@@ -94,15 +94,6 @@ async def execute_ws(index, username, cell_source, kernel):
 
 
 def handler(request):
-    if jupyterhub_url is None:
-        return jsonify({"message": "JUPYTERHUB_URL is required!"})
-
-    if jupyterhub_ws is None:
-        return jsonify({"message": "JUPYTERHUB_WS is required!"})
-
-    if token is None:
-        return jsonify({"message": "JUPYTERHUB_TOKEN is required!"})
-
     body = request.get_json()
 
     if body is None:
