@@ -31,5 +31,6 @@ def api_endpoint():
 
 if __name__ == "__main__":
     # Load SSL certificate and key
-    ssl_context = ("cert.pem", "key.pem")
-    app.run(debug=True, ssl_context=ssl_context)
+    # ssl_context = ("cert.pem", "key.pem")
+    app.run(debug=True)
+    # app.run(debug=True, ssl_context=ssl_context)
