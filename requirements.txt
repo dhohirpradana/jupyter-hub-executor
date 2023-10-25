@@ -11,5 +11,6 @@ urllib3==1.26.12
 Werkzeug==2.0.2
 flask_cors==3.0.3
 pysolr==3.9.0
-elasticsearch==8.10.1
+pytz==2022.7
 python-dotenv==0.21.0
+elasticsearch==8.10.1

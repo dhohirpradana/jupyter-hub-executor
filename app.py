@@ -1,5 +1,5 @@
 from execute import handler as execute_handler
-# from flask_cors import CORS
+from flask_cors import CORS
 from sys import stderr
 import os
 from flask import Flask, request, jsonify
@@ -11,7 +11,7 @@ required_env_vars = ["JUPYTERHUB_URL",
 
 
 app = Flask(__name__)
-# CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/')
