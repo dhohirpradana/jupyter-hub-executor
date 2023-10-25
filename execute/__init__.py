@@ -102,21 +102,21 @@ def handler(request):
     if "user" not in body:
         return jsonify({"message": "user is required!"}), 400
 
-    if "notebook-name" not in body:
-        return jsonify({"message": "notebook-name is required!"}), 400
+    if "path" not in body:
+        return jsonify({"message": "path is required!"}), 400
 
     if "scheduler-id" not in body:
         return jsonify({"message": "scheduler-id is required!"}), 400
 
     user = body["user"]
-    notebook_name = body["notebook-name"]
+    path = body["path"]
     scheduler_id = body["scheduler-id"]
 
     if user is None:
         return jsonify({"message": "user is required!"}), 400
 
-    if notebook_name is None:
-        return jsonify({"message": "notebook-name is required!"}), 400
+    if path is None:
+        return jsonify({"message": "path is required!"}), 400
 
     if scheduler_id is None:
         return jsonify({"message": "scheduler-id is required!"}), 400
@@ -141,7 +141,7 @@ def handler(request):
             # print(notebooks)
 
             try:
-                execute_url = f'{jupyterhub_url}/user/{user}/api/contents/{notebook_name}'
+                execute_url = f'{jupyterhub_url}/user/{user}/api/contents/{path}'
                 r = requests.get(execute_url, headers={
                     'Authorization': f'token {token}'}, json={})
                 r.raise_for_status()
@@ -166,7 +166,7 @@ def handler(request):
                         return jsonify({"message": "Unable get sessions!, no sessions!"}), 400
 
                     kernel_ids = [item["kernel"]["id"]
-                                  for item in responser if item["path"] == notebook_name]
+                                  for item in responser if item["path"] == path]
                     print(kernel_ids)
 
                     if not len(kernel_ids):
@@ -188,30 +188,38 @@ def handler(request):
 
                     # print("cell_type", cell_type)
 
-                    if cell_type == "code":
+                    if cell_type == "code" and cell_source:
                         # print(cell_source)
 
                         async def abc():
                             res = await execute_ws(index, user, cell_source, kernel)
                             print(res)
-                            results.append({'cell': index + 1, **res})
+                            results.append(
+                                {'cell': index + 1, "cell_type": cell_type, **res})
                         asyncio.run(abc())
                     else:
-                        if index+1 != len(cells):
-                            pass
-                        else:
-                            elastic_handler(
-                                {"scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
-                                    results, indent=4, sort_keys=True, default=str)})
-                            return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
+                        results.append(
+                            {'cell': index + 1, "cell_type": cell_type, "status": "ok", "msg": "ok"})
 
                     if results[-1]['status'] == 'error':
                         break
 
+                # print(results)
+                count_ok = 0
+                count_error = 0
+                count = len(cells)
+
+                for result in results:
+                    if result['status'] == 'ok':
+                        count_ok += 1
+                    elif result['status'] == 'error':
+                        count_error += 1
+
                 elastic_handler(
-                    {"scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
-                        results, indent=4, sort_keys=True, default=str)})
-                return jsonify({"message": "Finished", "total": len(cells), "results": results}), 200
+                    {"path": path, "scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
+                        results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
+
+                return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
 
             except Exception as e:
                 print(str(e))
