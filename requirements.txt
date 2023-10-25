@@ -14,3 +14,4 @@ pysolr==3.9.0
 pytz==2022.7
 python-dotenv==0.21.0
 elasticsearch==8.10.1
+websockets==12.0

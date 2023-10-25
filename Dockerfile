@@ -25,4 +25,4 @@ ENV SOLR_URL=http://10.10.65.1:8983/solr
 ENV ELASTIC_URL=http://10.10.65.65:30997
 
 # Run the Flask application
-CMD ["python", "app.py"]
+CMD ["flask", "run"]
