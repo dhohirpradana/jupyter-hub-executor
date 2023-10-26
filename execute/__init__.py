@@ -220,8 +220,8 @@ def handler(request):
                     {"path": path, "scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
                         results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
 
-                scheduler_update_handler(scheduler_id, "error" if len(
-                    count_error) else "success", datetime.now())
+                scheduler_update_handler(scheduler_id, "error" if
+                                         count_error else "success", datetime.now())
 
                 return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
 

@@ -23,9 +23,9 @@ ENV JUPYTERHUB_WS=ws://10.10.65.65:30822
 ENV JUPYTERHUB_TOKEN=f4da8b468a0a4013a49a698106feb98d
 ENV SOLR_URL=http://10.10.65.1:8983/solr
 ENV ELASTIC_URL=http://10.10.65.65:30997
-ENV PB_LOGIN_URL=http://10.10.65.5:8090/api/collections/users/auth-with-password
+ENV PB_LOGIN_URL=http://10.10.65.5:8090/api/admins/auth-with-password
 ENV PB_MAIL=system@system.system
-ENV PB_PASSWORD=2wsx1qaz
+ENV PB_PASSWORD=#EDC2wsx1qaz
 ENV PB_SCHEDULER_URL=http://10.10.65.5:8090/api/collections/scheduler/records
 
 # Run the Flask application
