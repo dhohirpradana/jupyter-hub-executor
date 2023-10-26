@@ -9,6 +9,7 @@ from flask import jsonify
 import os
 from solr import handler as solr_handler
 from elastic import handler as elastic_handler
+from database import scheduler_update as scheduler_update_handler
 
 from kernel import restart as restart_kernel
 
@@ -195,11 +196,11 @@ def handler(request):
                             res = await execute_ws(index, user, cell_source, kernel)
                             print(res)
                             results.append(
-                                {'cell': index + 1, "cell_type": cell_type, **res})
+                                {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, **res})
                         asyncio.run(abc())
                     else:
                         results.append(
-                            {'cell': index + 1, "cell_type": cell_type, "status": "ok", "msg": "ok"})
+                            {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, "status": "ok", "msg": "ok"})
 
                     if results[-1]['status'] == 'error':
                         break
@@ -218,6 +219,9 @@ def handler(request):
                 elastic_handler(
                     {"path": path, "scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
                         results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
+
+                scheduler_update_handler(scheduler_id, "error" if len(
+                    count_error) else "success", datetime.now())
 
                 return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
 
