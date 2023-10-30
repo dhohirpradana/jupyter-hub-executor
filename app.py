@@ -11,14 +11,14 @@ required_env_vars = ["JUPYTERHUB_URL",
                      "JUPYTERHUB_WS", "JUPYTERHUB_TOKEN", "ELASTIC_URL", "PB_LOGIN_URL", "PB_MAIL", "PB_PASSWORD", "PB_SCHEDULER_URL"]
 # raise EnvironmentError(f"Required environment variable {env_var} is not set.")
 
+def validate_envs():
+    for env_var in required_env_vars:
+        if env_var not in os.environ:
+            raise EnvironmentError(
+                f"Required environment variable {env_var} is not set.")
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
-
-@app.route('/')
-def token():
-    return token_handler()
 
 @app.route('/')
 def hello_geek():
@@ -26,11 +26,7 @@ def hello_geek():
 
 @app.route('/execute', methods=['POST'])
 def api_endpoint():
-    # Check if all required environment variables are set
-    for env_var in required_env_vars:
-        if env_var not in os.environ:
-            return jsonify({"message": f"Required environment variable {env_var} is not set."})
-
+    validate_envs()
     return execute_handler(request)
 
 
