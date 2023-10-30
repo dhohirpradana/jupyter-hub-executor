@@ -29,7 +29,6 @@ def api_endpoint():
     validate_envs()
     return execute_handler(request)
 
-
 if __name__ == "__main__":
     # Load SSL certificate and key
     # ssl_context = ("cert.pem", "key.pem")

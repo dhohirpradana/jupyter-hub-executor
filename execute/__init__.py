@@ -90,7 +90,7 @@ async def execute_ws(index, username, cell_source, kernel):
             if 'status' in content:
                 # print(content['status'])
                 status = content['status']
-                return {'status': status, 'msg': content['traceback'] if status == 'error' else 'ok'}
+                return {'status': status, 'msg': content['traceback'] if status == 'error' else 'Success'}
                 # asyncio.get_event_loop().run_until_complete(handler())
 
 
@@ -200,7 +200,7 @@ def handler(request):
                         asyncio.run(abc())
                     else:
                         results.append(
-                            {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, "status": "ok", "msg": "ok"})
+                            {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, "status": "ok", "msg": "Success"})
 
                     if results[-1]['status'] == 'error':
                         break
@@ -211,7 +211,7 @@ def handler(request):
                 count = len(cells)
 
                 for result in results:
-                    if result['status'] == 'ok':
+                    if result['status'] == 'Success':
                         count_ok += 1
                     elif result['status'] == 'error':
                         count_error += 1
