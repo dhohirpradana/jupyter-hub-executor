@@ -20,7 +20,7 @@ token = os.environ.get('JUPYTERHUB_TOKEN')
 api_url = f"{jupyterhub_url}/hub/api"
 
 
-async def execute_ws(index, username, cell_source, kernel):
+async def execute_ws(index, username, cell_source, kernel, cx):
     uuid4 = uuid.uuid4()
     msg_id = uuid.uuid4()
     now = datetime.now()
@@ -96,12 +96,23 @@ async def execute_ws(index, username, cell_source, kernel):
 
 def handler(request):
     body = request.get_json()
+    cron_param = request.args.get('cron')
+    if cron_param and cron_param == 1:
+        cx = True
+    else:
+        cx = False
 
     if body is None:
         return jsonify({"message": "Request body is required!"}), 400
 
     if "user" not in body:
         return jsonify({"message": "user is required!"}), 400
+    
+    if cx and "cron-expression" not in body:
+        cron_expression = False
+        return jsonify({"message": "cron-expression is required!"}), 400
+    else:
+        cron_expression = body["cron-expression"]
 
     if "path" not in body:
         return jsonify({"message": "path is required!"}), 400
@@ -112,6 +123,7 @@ def handler(request):
     user = body["user"]
     path = body["path"]
     scheduler_id = body["scheduler-id"]
+    
 
     if user is None:
         return jsonify({"message": "user is required!"}), 400
@@ -215,13 +227,13 @@ def handler(request):
                         count_ok += 1
                     elif result['status'] == 'error':
                         count_error += 1
-
+                last_run = datetime.now()
                 elastic_handler(
-                    {"path": path, "scheduler_id": scheduler_id, "date": f"{datetime.now()}", "results": json.dumps(
+                    {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
                         results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
 
                 scheduler_update_handler(scheduler_id, "error" if
-                                         count_error else "success", datetime.now())
+                                         count_error else "success", last_run, cron_expression)
 
                 return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
 

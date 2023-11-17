@@ -2,21 +2,34 @@ import requests
 import os
 from pb_token import token_get as token_handler
 from flask import jsonify
+from datetime import datetime
+from croniter import croniter
 
 scheduler_url = os.environ.get('PB_SCHEDULER_URL')
 
 
-def scheduler_update(id, status, last_run):
+def scheduler_update(id, status, last_run, cron_expression):
     print("update scheduler")
     token = token_handler()
     if token_handler == "":
         return jsonify({"message": "Error get pb token!"}), 500
-    # lastRun
 
-    data = {
-        "lastRun": str(last_run),
-        "status": status,
-    }
+    if not cron_expression:
+        data = {
+            "lastRun": str(last_run),
+            "status": status,
+        }
+    else:
+        cron = croniter(cron_expression, last_run)
+
+        next_run = cron.get_next(datetime)
+        print("Next run time:", next_run)
+        
+        data = {
+            "lastRun": str(last_run),
+            "nextRun": str(next_run),
+            "status": status,
+        }
     
     url = scheduler_url + f'/{id}'
     headers = {
