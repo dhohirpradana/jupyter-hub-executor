@@ -5,7 +5,7 @@ event_url = os.environ.get('EVENT_URL')
 
 from database import notification_create as notification_create_handler
 
-async def send_event(event, event_data, email, cx, scheduler_id):
+def send_event(event, event_data, email, cx, scheduler_id):
     status = None
     if event == "scheduler-error":
         status = "failed"
