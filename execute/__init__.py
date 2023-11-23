@@ -112,11 +112,13 @@ def handler(request):
     if "c-email" not in body:
         return jsonify({"message": "c-email is required!"}), 400
     
-    if cx and "cron-expression" not in body:
-        cron_expression = False
-        return jsonify({"message": "cron-expression is required!"}), 400
-    else:
-        cron_expression = body["cron-expression"]
+    if cx:
+        if "cron-expression" not in body:
+            cron_expression = False
+            return jsonify({"message": "cron-expression is required!"}), 400
+        else:
+            cron_expression = body["cron-expression"]
+
 
     if "path" not in body:
         return jsonify({"message": "path is required!"}), 400
