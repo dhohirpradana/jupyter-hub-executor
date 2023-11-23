@@ -6,13 +6,14 @@ from datetime import datetime
 from croniter import croniter
 
 scheduler_url = os.environ.get('PB_SCHEDULER_URL')
-
+notification_url = os.environ.get('PB_NOTIFICATION_URL')
 
 def scheduler_update(id, status, last_run, cron_expression):
     print("update scheduler")
     token = token_handler()
     if token_handler == "":
-        return jsonify({"message": "Error get pb token!"}), 500
+        # return jsonify({"message": "Error get pb token!"}), 500
+        print("Error get pb token!")
 
     if not cron_expression:
         data = {
@@ -48,4 +49,30 @@ def scheduler_update(id, status, last_run, cron_expression):
         print("Update scheduler successfully", r.json())
     except Exception as e:
         print("Update scheduler unsuccess!")
+        print(e)
+
+def notification_create(scheduler, type, status):
+    print("create notification")
+    token = token_handler()
+    if token_handler == "":
+        # return jsonify({"message": "Error get pb token!"}), 500
+        print("Error get pb token!")
+        
+    url = notification_url
+    headers = {
+        'Authorization': f'Bearer {token}',
+    }
+    
+    try:
+        r = requests.post(url,
+                          headers=headers, json={
+                              "scheduler": scheduler,
+                              "type": type,
+                              "status": status
+                          })
+
+        r.raise_for_status()
+        print("Create notification successfully", r.json())
+    except Exception as e:
+        print("Create notification unsuccess!")
         print(e)

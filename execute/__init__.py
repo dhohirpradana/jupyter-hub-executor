@@ -10,6 +10,7 @@ import os
 from solr import handler as solr_handler
 from elastic import handler as elastic_handler
 from database import scheduler_update as scheduler_update_handler
+from notification import send_event as send_event_handler
 
 from kernel import restart as restart_kernel
 
@@ -108,6 +109,9 @@ def handler(request):
     if "user" not in body:
         return jsonify({"message": "user is required!"}), 400
     
+    if "c-email" not in body:
+        return jsonify({"message": "c-email is required!"}), 400
+    
     if cx and "cron-expression" not in body:
         cron_expression = False
         return jsonify({"message": "cron-expression is required!"}), 400
@@ -120,10 +124,10 @@ def handler(request):
     if "scheduler-id" not in body:
         return jsonify({"message": "scheduler-id is required!"}), 400
 
+    email = body["c-email"]
     user = body["user"]
     path = body["path"]
     scheduler_id = body["scheduler-id"]
-    
 
     if user is None:
         return jsonify({"message": "user is required!"}), 400
@@ -133,8 +137,12 @@ def handler(request):
 
     if scheduler_id is None:
         return jsonify({"message": "scheduler-id is required!"}), 400
+    
+    if email is None:
+        return jsonify({"message": "c-email is required!"}), 400
 
     try:
+        send_event_handler("sjduler-start", {"msg": "Scheduler start"}, email, cx, scheduler_id)
         r = requests.get(api_url + '/users',
                          headers={
                              'Authorization': f'token {token}',
@@ -176,6 +184,7 @@ def handler(request):
                     # print(responser)
 
                     if not len(responser):
+                        send_event_handler("sjduler-error", {"msg": "Unable get sessions!, no sessions!"}, email, cx, scheduler_id)
                         return jsonify({"message": "Unable get sessions!, no sessions!"}), 400
 
                     kernel_ids = [item["kernel"]["id"]
@@ -183,11 +192,13 @@ def handler(request):
                     print(kernel_ids)
 
                     if not len(kernel_ids):
+                        send_event_handler("sjduler-error", {"msg": "Unable get sessions!, no kernels!"}, email, cx, scheduler_id)
                         return jsonify({"message": "Unable get sessions!, no kernels!"}), 400
                     else:
                         kernel = kernel_ids[0]
 
                 except Exception as e:
+                    send_event_handler("sjduler-error", {"msg": "Unable get sessions!"}, email, cx, scheduler_id)
                     return jsonify({"message": "Unable get sessions!"}), 400
 
                 cells = response['content']['cells']
@@ -234,17 +245,21 @@ def handler(request):
 
                 scheduler_update_handler(scheduler_id, "error" if
                                          count_error else "success", last_run, cron_expression)
-
+                
+                send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
                 return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
 
             except Exception as e:
                 print(str(e))
+                send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
                 return jsonify({"message": str(e)}), 400
 
         except Exception as e:
             print(str(e))
+            send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
             return jsonify({"message": str(e)}), 400
 
     except Exception as e:
         print(str(e))
+        send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
         return jsonify({"message": str(e)}), 400
