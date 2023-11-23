@@ -21,7 +21,7 @@ token = os.environ.get('JUPYTERHUB_TOKEN')
 api_url = f"{jupyterhub_url}/hub/api"
 
 
-async def execute_ws(index, username, cell_source, kernel, cx):
+async def execute_ws(index, username, cell_source, kernel):
     uuid4 = uuid.uuid4()
     msg_id = uuid.uuid4()
     now = datetime.now()
