@@ -29,8 +29,6 @@ def send_event(event, event_data, email, cx, scheduler_id):
         print(str(e))
         
     if cx and (event == "sjduler-finish" or event == "sjduler-error"):
-        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed")
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed", event_data["msg"], True)
     elif event == "sjduler-finish" or event == "sjduler-error":
-        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed")
-    else:
-        print("Not cron job or status is None")
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed",  event_data["msg"], False)

@@ -259,9 +259,8 @@ def handler(request):
                         elastic_handler(
                             {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
                                 results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
-
-                        scheduler_update_handler(scheduler_id, "failed" if
-                                                count_error else "success", last_run, cron_expression)
+                        status = "success" if count_error == 0 else "failed"
+                        scheduler_update_handler(scheduler_id, True, last_run, cron_expression)
                         
                         send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
                         return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200

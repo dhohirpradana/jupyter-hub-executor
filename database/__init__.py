@@ -16,6 +16,11 @@ def scheduler_update(id, status, last_run, cron_expression):
         print("Error get pb token!")
 
     if not cron_expression:
+        cron = croniter(cron_expression, last_run)
+
+        next_run = cron.get_next(datetime)
+        print("Next run time:", next_run)
+        
         data = {
             "lastRun": str(last_run),
             "status": status,
@@ -51,7 +56,7 @@ def scheduler_update(id, status, last_run, cron_expression):
         print("Update scheduler unsuccess!")
         print(e)
 
-def notification_create(scheduler, type, status):
+def notification_create(scheduler, type, status, msg, is_cron):
     print("create notification")
     token = token_handler()
     if token_handler == "":
@@ -68,7 +73,9 @@ def notification_create(scheduler, type, status):
                           headers=headers, json={
                               "scheduler": scheduler,
                               "type": type,
-                              "status": status
+                              "status": status,
+                              "message": msg,
+                              "isCron": is_cron
                           })
 
         r.raise_for_status()
