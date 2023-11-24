@@ -265,7 +265,9 @@ def handler(request):
                         
                         scheduler_update_handler(scheduler_id, status, last_run, pb_last_run, cron_expression)
                         
-                        send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
+                        msg = "Scheduler finish" if count_error == 0 else "Scheduler error"
+                        
+                        send_event_handler("sjduler-finish", {"msg": msg}, email, cx, scheduler_id)
                         return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
                     except Exception as e:
                         print("Error get cells")
