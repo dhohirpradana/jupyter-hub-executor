@@ -13,12 +13,6 @@ def send_event(event, event_data, email, cx, scheduler_id):
         "cx": cx,
         "scheduler_id": scheduler_id
     })
-    status = None
-    if event == "scheduler-error":
-        status = "failed"
-        
-    elif event == "scheduler-finish":
-        status = "success"
 
     try:
         r = requests.post(event_url,
@@ -34,7 +28,9 @@ def send_event(event, event_data, email, cx, scheduler_id):
     except Exception as e:
         print(str(e))
         
-    if cx and status:
-        notification_create_handler(scheduler_id, "scheduler", status)
+    if cx and (event == "sjduler-finish" or event == "sjduler-error"):
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed")
+    elif event == "sjduler-finish" or event == "sjduler-error":
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed")
     else:
         print("Not cron job or status is None")
