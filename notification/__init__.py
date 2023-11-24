@@ -19,7 +19,7 @@ def send_event(event, event_data, email, cx, scheduler_id):
                                 "event": event,
                                 "email": email,
                                 "event-data": event_data
-                            }
+                            }, verify=False
                             )
     
         r.raise_for_status()
