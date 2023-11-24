@@ -293,6 +293,5 @@ def handler(request):
     except Exception as e:
         print("Error get detail scheduler")
         print(str(e))
-        send_event_handler("sjduler-error", {"msg": f'Error get detail scheduler {str(e)}'}, email, cx, scheduler_id)
         return jsonify({"message": str(e)}), 400
 
