@@ -99,10 +99,12 @@ async def execute_ws(index, username, cell_source, kernel):
 def handler(request):
     body = request.get_json()
     cron_param = request.args.get('cron')
-    if cron_param and cron_param == 1:
+    if cron_param == "1":
         cx = True
     else:
         cx = False
+        
+    print("cx", cx)
 
     if body is None:
         return jsonify({"message": "Request body is required!"}), 400
