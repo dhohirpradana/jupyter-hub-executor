@@ -118,6 +118,8 @@ def handler(request):
             return jsonify({"message": "cron-expression is required!"}), 400
         else:
             cron_expression = body["cron-expression"]
+    else:
+        cron_expression = False
 
 
     if "path" not in body:
