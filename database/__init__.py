@@ -10,7 +10,10 @@ notification_url = os.environ.get('PB_NOTIFICATION_URL')
 
 def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     print("update scheduler")
-    now_time = datetime.now()
+    
+    # set last_run second to 0
+    last_run = last_run.replace(second=0)
+    now_time = last_run
     
     # validate last_run null
     if pb_last_run == None or pb_last_run == "":
@@ -36,12 +39,16 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     else:
         pb_last_run = datetime.strptime(pb_last_run, '%Y-%m-%d %H:%M:%S.%fZ')
         
+        # pb lastrun set second to 0
+        pb_last_run = pb_last_run.replace(second=0)
+        
         # Create a croniter object
         cron = croniter(cron_expression, pb_last_run)
 
         # Get the next run time after the current time
         next_run = cron.get_next(datetime)
         while next_run < now_time:
+            cron = croniter(cron_expression, next_run)
             next_run = cron.get_next(datetime)
             
         print("Next run time:", next_run)
