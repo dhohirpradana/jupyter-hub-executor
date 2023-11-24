@@ -11,6 +11,7 @@ from solr import handler as solr_handler
 from elastic import handler as elastic_handler
 from database import scheduler_update as scheduler_update_handler
 from notification import send_event as send_event_handler
+from pb_token import token_get as token_handler
 
 from kernel import restart as restart_kernel
 
@@ -109,9 +110,6 @@ def handler(request):
     if "user" not in body:
         return jsonify({"message": "user is required!"}), 400
     
-    if "c-email" not in body:
-        return jsonify({"message": "c-email is required!"}), 400
-    
     if cx:
         if "cron-expression" not in body:
             cron_expression = False
@@ -128,7 +126,6 @@ def handler(request):
     if "scheduler-id" not in body:
         return jsonify({"message": "scheduler-id is required!"}), 400
 
-    email = body["c-email"]
     user = body["user"]
     path = body["path"]
     scheduler_id = body["scheduler-id"]
@@ -142,8 +139,28 @@ def handler(request):
     if scheduler_id is None:
         return jsonify({"message": "scheduler-id is required!"}), 400
     
-    if email is None:
-        return jsonify({"message": "c-email is required!"}), 400
+    # get detail scheduler
+    try:
+        pb_token = token_handler()
+        print("token", token)
+        if pb_token == "":
+            return jsonify({"message": "Error get pb token!"}), 500
+        r = requests.get(f"{os.environ.get('PB_SCHEDULER_URL')}/{scheduler_id}",
+                         headers={
+                             "Authorization": f"Bearer {pb_token}"
+                         }
+        )
+        r.raise_for_status()
+        scheduler = r.json()
+        # print("scheduler", scheduler)
+        pb_user = scheduler["user"]
+        print("user", pb_user)
+        email = pb_user
+    except Exception as e:
+        print("Error get detail scheduler")
+        print(str(e))
+        send_event_handler("sjduler-error", {"msg": f'Error get detail scheduler {str(e)}'}, email, cx, scheduler_id)
+        return jsonify({"message": str(e)}), 400
 
     try:
         send_event_handler("sjduler-start", {"msg": "Scheduler start"}, email, cx, scheduler_id)
@@ -258,23 +275,23 @@ def handler(request):
                     # get error location
                     print(e.__traceback__.tb_lineno)
                     print(str(e))
-                    send_event_handler("sjduler-error", {"msg": f'Error get cells {str(e)}'}, email, cx, scheduler_id)
+                    send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
                     return jsonify({"message": str(e)}), 400
                 
             except Exception as e:
                 print("Error get execute")
                 print(str(e))
-                send_event_handler("sjduler-error", {"msg": f'Error get execute {execute_url} {str(e)}'}, email, cx, scheduler_id)
+                send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
                 return jsonify({"message": str(e)}), 400
 
         except Exception as e:
             print("Error get notebooks")
             print(str(e))
-            send_event_handler("sjduler-error", {"msg": f'Error get notebooks {str(e)}'}, email, cx, scheduler_id)
+            send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
             return jsonify({"message": str(e)}), 400
 
     except Exception as e:
         print("Error get users")
         print(str(e))
-        send_event_handler("sjduler-error", {"msg": f'Error get users {str(e)}'}, email, cx, scheduler_id)
+        send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
         return jsonify({"message": str(e)}), 400
