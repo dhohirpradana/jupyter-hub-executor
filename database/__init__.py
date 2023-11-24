@@ -56,7 +56,7 @@ def scheduler_update(id, status, last_run, cron_expression):
         print("Update scheduler unsuccess!")
         print(e)
 
-def notification_create(scheduler, type, status, msg, is_cron):
+def notification_create(scheduler, type, status, msg, is_cron, user):
     print("create notification")
     token = token_handler()
     if token_handler == "":
@@ -75,7 +75,8 @@ def notification_create(scheduler, type, status, msg, is_cron):
                               "type": type,
                               "status": status,
                               "message": msg,
-                              "isCron": is_cron
+                              "isCron": is_cron,
+                              "user": user
                           })
 
         r.raise_for_status()

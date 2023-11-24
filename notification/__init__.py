@@ -29,6 +29,6 @@ def send_event(event, event_data, email, cx, scheduler_id):
         print(str(e))
         
     if cx and (event == "sjduler-finish" or event == "sjduler-error"):
-        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed", event_data["msg"], True)
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed", event_data["msg"], True, email)
     elif event == "sjduler-finish" or event == "sjduler-error":
-        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed",  event_data["msg"], False)
+        notification_create_handler(scheduler_id, "scheduler", "success" if event == "scheduler-finish" else "failed",  event_data["msg"], False, email)
