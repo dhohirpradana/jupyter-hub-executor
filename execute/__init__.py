@@ -203,65 +203,76 @@ def handler(request):
                     send_event_handler("sjduler-error", {"msg": "Unable get sessions!"}, email, cx, scheduler_id)
                     return jsonify({"message": "Unable get sessions!"}), 400
 
-                cells = response['content']['cells']
-                # print(cells)
+                try:
+                    cells = response['content']['cells']
+                    # print(cells)
 
-                results = []
+                    results = []
 
-                for index, cell in enumerate(cells):
-                    cell_source = cell['source']
-                    cell_type = cell['cell_type']
+                    for index, cell in enumerate(cells):
+                        cell_source = cell['source']
+                        cell_type = cell['cell_type']
 
-                    # print("cell_type", cell_type)
+                        # print("cell_type", cell_type)
 
-                    if cell_type == "code" and cell_source:
-                        # print(cell_source)
+                        if cell_type == "code" and cell_source:
+                            # print(cell_source)
 
-                        async def abc():
-                            res = await execute_ws(index, user, cell_source, kernel)
-                            print(res)
+                            async def abc():
+                                res = await execute_ws(index, user, cell_source, kernel)
+                                print(res)
+                                results.append(
+                                    {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, **res})
+                            asyncio.run(abc())
+                        else:
                             results.append(
-                                {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, **res})
-                        asyncio.run(abc())
-                    else:
-                        results.append(
-                            {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, "status": "ok", "msg": "Success"})
+                                {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, "status": "ok", "msg": "Success"})
 
-                    if results[-1]['status'] == 'error':
-                        break
+                        if results[-1]['status'] == 'error':
+                            break
 
-                # print(results)
-                count_ok = 0
-                count_error = 0
-                count = len(cells)
+                    # print(results)
+                    count_ok = 0
+                    count_error = 0
+                    count = len(cells)
 
-                for result in results:
-                    if result['status'] == 'Success':
-                        count_ok += 1
-                    elif result['status'] == 'error':
-                        count_error += 1
-                last_run = datetime.now()
-                elastic_handler(
-                    {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
-                        results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
+                    for result in results:
+                        if result['status'] == 'Success':
+                            count_ok += 1
+                        elif result['status'] == 'error':
+                            count_error += 1
+                    last_run = datetime.now()
+                    elastic_handler(
+                        {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
+                            results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
 
-                scheduler_update_handler(scheduler_id, "error" if
-                                         count_error else "success", last_run, cron_expression)
+                    scheduler_update_handler(scheduler_id, "error" if
+                                            count_error else "success", last_run, cron_expression)
+                    
+                    send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
+                    return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
+                except Exception as e:
+                    print("Error get cells")
+                    # get error location
+                    print(e.__traceback__.tb_lineno)
+                    print(str(e))
+                    send_event_handler("sjduler-error", {"msg": f'Error get cells {str(e)}'}, email, cx, scheduler_id)
+                    return jsonify({"message": str(e)}), 400
                 
-                send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
-                return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
-
             except Exception as e:
+                print("Error get execute")
                 print(str(e))
-                send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
+                send_event_handler("sjduler-error", {"msg": f'Error get execute {execute_url} {str(e)}'}, email, cx, scheduler_id)
                 return jsonify({"message": str(e)}), 400
 
         except Exception as e:
+            print("Error get notebooks")
             print(str(e))
-            send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
+            send_event_handler("sjduler-error", {"msg": f'Error get notebooks {str(e)}'}, email, cx, scheduler_id)
             return jsonify({"message": str(e)}), 400
 
     except Exception as e:
+        print("Error get users")
         print(str(e))
-        send_event_handler("sjduler-error", {"msg": str(e)}, email, cx, scheduler_id)
+        send_event_handler("sjduler-error", {"msg": f'Error get users {str(e)}'}, email, cx, scheduler_id)
         return jsonify({"message": str(e)}), 400
