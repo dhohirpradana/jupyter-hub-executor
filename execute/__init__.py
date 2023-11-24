@@ -29,7 +29,7 @@ async def execute_ws(index, username, cell_source, kernel):
     formatted_date = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
     uri = f"{jupyterhub_ws}/user/{username}/api/kernels/{kernel}/channels?session_id={uuid4}&token={token}"
-    print("uri", uri)
+    # print("uri", uri)
 
     message = {
         "header": {
@@ -99,12 +99,11 @@ async def execute_ws(index, username, cell_source, kernel):
 def handler(request):
     body = request.get_json()
     cron_param = request.args.get('cron')
+    last_run = datetime.now()
     if cron_param == "1":
         cx = True
     else:
         cx = False
-        
-    print("cx", cx)
 
     if body is None:
         return jsonify({"message": "Request body is required!"}), 400
@@ -156,8 +155,9 @@ def handler(request):
         scheduler = r.json()
         # print("scheduler", scheduler)
         pb_user = scheduler["user"]
-        print("user", pb_user)
+        # print("user", pb_user)
         email = pb_user
+        pb_last_run = scheduler["lastRun"]
         
         try:
             send_event_handler("sjduler-start", {"msg": "Scheduler start"}, email, cx, scheduler_id)
@@ -207,7 +207,7 @@ def handler(request):
 
                         kernel_ids = [item["kernel"]["id"]
                                     for item in responser if item["path"] == path]
-                        print(kernel_ids)
+                        # print(kernel_ids)
 
                         if not len(kernel_ids):
                             send_event_handler("sjduler-error", {"msg": "Unable get sessions!, no kernels!"}, email, cx, scheduler_id)
@@ -236,7 +236,7 @@ def handler(request):
 
                                 async def abc():
                                     res = await execute_ws(index, user, cell_source, kernel)
-                                    print(res)
+                                    # print(res)
                                     results.append(
                                         {'cell': index + 1, "cell_type": cell_type, "cell-value": cell_source, **res})
                                 asyncio.run(abc())
@@ -257,12 +257,13 @@ def handler(request):
                                 count_ok += 1
                             elif result['status'] == 'error':
                                 count_error += 1
-                        last_run = datetime.now()
+                        
                         elastic_handler(
                             {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
                                 results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
                         status = "success" if count_error == 0 else "failed"
-                        scheduler_update_handler(scheduler_id, True, last_run, cron_expression)
+                        
+                        scheduler_update_handler(scheduler_id, status, pb_last_run, cron_expression)
                         
                         send_event_handler("sjduler-finish", {"msg": "Scheduler finish"}, email, cx, scheduler_id)
                         return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
@@ -271,7 +272,7 @@ def handler(request):
                         # get error location
                         print(e.__traceback__.tb_lineno)
                         print(str(e))
-                        send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
+                        send_event_handler("sjduler-error", {"msg": f'Error get cells {str(e)}'}, email, cx, scheduler_id)
                         return jsonify({"message": str(e)}), 400
                     
                 except Exception as e:

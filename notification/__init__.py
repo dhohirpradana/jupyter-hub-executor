@@ -6,13 +6,13 @@ event_url = os.environ.get('EVENT_URL')
 from database import notification_create as notification_create_handler
 
 def send_event(event, event_data, email, cx, scheduler_id):
-    print({
-        "event": event,
-        "email": email,
-        "event-data": event_data,
-        "cx": cx,
-        "scheduler_id": scheduler_id
-    })
+    # print({
+    #     "event": event,
+    #     "email": email,
+    #     "event-data": event_data,
+    #     "cx": cx,
+    #     "scheduler_id": scheduler_id
+    # })
 
     try:
         r = requests.post(event_url,

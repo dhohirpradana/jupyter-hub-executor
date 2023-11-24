@@ -10,25 +10,41 @@ notification_url = os.environ.get('PB_NOTIFICATION_URL')
 
 def scheduler_update(id, status, last_run, cron_expression):
     print("update scheduler")
+    now_time = datetime.now()
+    
+    # validate last_run null
+    if last_run == None or last_run == "":
+        last_run = now_time
+    
+    print({
+        "id": id,
+        "status": status,
+        "last_run": last_run,
+        "cron_expression": cron_expression
+    })
     token = token_handler()
-    if token_handler == "":
+    if token == "":
         # return jsonify({"message": "Error get pb token!"}), 500
         print("Error get pb token!")
 
-    if not cron_expression:
-        cron = croniter(cron_expression, last_run)
-
-        next_run = cron.get_next(datetime)
-        print("Next run time:", next_run)
-        
+    if cron_expression == False:
         data = {
             "lastRun": str(last_run),
             "status": status,
         }
     else:
+        # cron = croniter(cron_expression, last_run)
+
+        # next_run = cron.get_next(datetime)
+        
+        # Create a croniter object
         cron = croniter(cron_expression, last_run)
 
+        # Get the next run time after the current time
         next_run = cron.get_next(datetime)
+        while next_run < now_time:
+            next_run = cron.get_next(datetime)
+            
         print("Next run time:", next_run)
         
         data = {
