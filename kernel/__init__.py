@@ -2,13 +2,9 @@ import requests
 import os
 from datetime import datetime
 
-jupyterhub_url = os.environ.get('JUPYTERHUB_URL')
-token = os.environ.get('JUPYTERHUB_TOKEN')
-
-
-def restart(kernel, user):
+def restart(kernel, api_url, token):
     now = datetime.now()
-    url = f"{jupyterhub_url}/user/{user}/api/kernels/{kernel}/restart?{now}"
+    url = f"{api_url}/kernels/{kernel}/restart?{now}"
 
     try:
         r = requests.post(url, headers={

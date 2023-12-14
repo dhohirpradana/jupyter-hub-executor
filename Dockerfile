@@ -16,7 +16,5 @@ ENV FLASK_RUN_PORT=5000
 # COPY cert.pem /app
 # COPY key.pem /app
 
-# ENV FLASK_RUN_HOST=0.0.0.0
-
 # Run the Flask application
 CMD ["flask", "run"]

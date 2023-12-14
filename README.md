@@ -1,4 +1,4 @@
-# jupyter-hub-executor
+# jupyter--executor
 ```bash
-docker build https://github.com/dhohirpradana/jupyter-hub-executor.git#master:. --network host
+docker build https://git.com/dhohirpradana/jupyter--executor.git#master:. --network host
 ```
