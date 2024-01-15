@@ -100,6 +100,8 @@ def handler(request):
     cron_param = request.args.get('cron')
     port = request.args.get('port')
     last_run = datetime.now()
+    # last run to milisecondepoch
+    last_run = int(round(time.time() * 1000))
     if cron_param == "1":
         cx = True
     else:
