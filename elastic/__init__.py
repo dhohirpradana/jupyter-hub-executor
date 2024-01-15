@@ -14,7 +14,7 @@ def handler(data):
     document_id = uuid4
 
     try:
-        Define the index mapping
+        # Define the index mapping
         index_mapping = {
             "mappings": {
                 "properties": {
