@@ -12,7 +12,7 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     print("update scheduler")
     
     # set last_run second to 0
-    last_run = last_run.replace(second=0)
+    # last_run = last_run.replace(second=0)
     now_time = last_run
     
     # change now_time to timestamp
@@ -43,7 +43,7 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
         # pb_last_run = pb_last_run.strptime(pb_last_run, '%Y-%m-%d %H:%M:%S.%fZ')
         
         # pb lastrun set second to 0
-        pb_last_run = pb_last_run.replace(second=0)
+        # pb_last_run = pb_last_run.replace(second=0)
         
         # Create a croniter object
         cron = croniter(cron_expression, pb_last_run)
