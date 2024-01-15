@@ -14,23 +14,23 @@ def handler(data):
     document_id = uuid4
 
     try:
-        # Define the index mapping
-        # index_mapping = {
-        #     "mappings": {
-        #         "properties": {
-        #             "lastRun": {
-        #                 "type": "date",
-        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
-        #             },
-        #             "nextRun": {
-        #                 "type": "date",
-        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
-        #             },
-        #         }
-        #     }
-        # }
+        Define the index mapping
+        index_mapping = {
+            "mappings": {
+                "properties": {
+                    "lastRun": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+                    },
+                    "nextRun": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+                    },
+                }
+            }
+        }
 
-        # es.indices.create(index=index_name, body=index_mapping)
+        es.indices.create(index=index_name, body=index_mapping)
 
         es = Elasticsearch(hosts=elastic_url)
         es.index(index=index_name, document=data, id=document_id)
