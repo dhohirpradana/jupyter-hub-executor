@@ -17,7 +17,7 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     
     # validate last_run null
     if pb_last_run == None or pb_last_run == "":
-        pb_last_run = now_time
+        pb_last_run = now_time.strptime(now_time, '%Y-%m-%d %H:%M:%S.%fZ')
     
     print({
         "id": id,
@@ -37,7 +37,7 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
             "status": status,
         }
     else:
-        pb_last_run = pb_last_run.strptime('%Y-%m-%d %H:%M:%S.%fZ')
+        pb_last_run = pb_last_run.strptime(pb_last_run, '%Y-%m-%d %H:%M:%S.%fZ')
         
         # pb lastrun set second to 0
         pb_last_run = pb_last_run.replace(second=0)
