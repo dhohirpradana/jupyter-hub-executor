@@ -15,20 +15,20 @@ def handler(data):
 
     try:
         # Define the index mapping
-        index_mapping = {
-            "mappings": {
-                "properties": {
-                    "lastRun": {
-                        "type": "date",
-                        "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
-                    },
-                    "nextRun": {
-                        "type": "date",
-                        "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
-                    },
-                }
-            }
-        }
+        # index_mapping = {
+        #     "mappings": {
+        #         "properties": {
+        #             "lastRun": {
+        #                 "type": "date",
+        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        #             },
+        #             "nextRun": {
+        #                 "type": "date",
+        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        #             },
+        #         }
+        #     }
+        # }
 
         es.indices.create(index=index_name, body=index_mapping)
 
