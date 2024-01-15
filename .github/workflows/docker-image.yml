@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag jupyter-hub-executor:$(date +%s)
+      run: docker build . --file Dockerfile --tag jupyter-hub-executor
 
   publish:
 
@@ -33,5 +33,5 @@ jobs:
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker tag jupyter-hub-executor:$(date +%s) "${{ secrets.DOCKERHUB_USERNAME }}/jupyter-hub-executor:$(date +%s)"
-        docker push "${{ secrets.DOCKERHUB_USERNAME }}/jupyter-hub-executor:$(date +%s)" 
+        docker tag jupyter-hub-executor "${{ secrets.DOCKERHUB_USERNAME }}/jupyter-hub-executor"
+        docker push "${{ secrets.DOCKERHUB_USERNAME }}/jupyter-hub-executor" 
