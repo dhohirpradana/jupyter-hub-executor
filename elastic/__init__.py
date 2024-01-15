@@ -30,7 +30,7 @@ def handler(data):
         #     }
         # }
 
-        es.indices.create(index=index_name, body=index_mapping)
+        # es.indices.create(index=index_name, body=index_mapping)
 
         es = Elasticsearch(hosts=elastic_url)
         es.index(index=index_name, document=data, id=document_id)
