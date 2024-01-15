@@ -49,10 +49,11 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
         cron = croniter(cron_expression, pb_last_run)
 
         # Get the next run time after the current time
-        next_run = cron.get_next(datetime)
-        while next_run < now_time:
-            cron = croniter(cron_expression, next_run)
-            next_run = cron.get_next(datetime)
+        # next_run = cron.get_next(datetime)
+        next_run = "-"
+        # while next_run < now_time:
+        #     cron = croniter(cron_expression, next_run)
+        #     next_run = cron.get_next(datetime)
             
         print("Next run time:", next_run)
         
