@@ -14,7 +14,7 @@ def handler(data):
     document_id = uuid4
 
     try:
-        es = Elasticsearch(hosts=elastic_url)
+        es = Elasticsearch(hosts=elastic_url, verify_certs=False)
         es.index(index=index_name, document=data, id=document_id)
         print("Success insert data to elastic")
     except Exception as e:
