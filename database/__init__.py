@@ -79,7 +79,14 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
         print(e)
 
 def notification_create(scheduler, type, status, msg, is_cron, user):
-    print("create notification")
+    print({
+        "scheduler": scheduler,
+        "type": type,
+        "status": status,
+        "msg": msg,
+        "is_cron": is_cron,
+        "user": user
+    })
     token = token_handler()
     if token_handler == "":
         # return jsonify({"message": "Error get pb token!"}), 500

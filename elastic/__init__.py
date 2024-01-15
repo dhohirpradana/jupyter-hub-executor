@@ -4,7 +4,7 @@ from elasticsearch.client import XPackClient
 import os
 import uuid
 
-elastic_url = os.environ.get('ELASTIC_URL', 'http://103.127.97.245:9200')
+elastic_url = os.environ.get('ELASTIC_URL')
 print(elastic_url)
 
 def handler(data):

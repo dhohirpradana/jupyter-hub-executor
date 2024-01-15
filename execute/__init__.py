@@ -210,7 +210,7 @@ def handler(request):
                         # print(responser)
 
                         if not len(responser):
-                            send_event_handler("sjduler-error", {"msg": "Unable get sessions!, no sessions!"}, email, cx, scheduler_id)
+                            send_event_handler("scheduler-error", {"msg": "Unable get sessions!, no sessions!"}, email, cx, scheduler_id)
                             return jsonify({"message": "Unable get sessions!, no sessions!"}), 400
 
                         kernel_ids = [item["kernel"]["id"]
@@ -218,13 +218,13 @@ def handler(request):
                         # print(kernel_ids)
 
                         if not len(kernel_ids):
-                            send_event_handler("sjduler-error", {"msg": "Unable get sessions!, no kernels!"}, email, cx, scheduler_id)
+                            send_event_handler("scheduler-error", {"msg": "Unable get sessions!, no kernels!"}, email, cx, scheduler_id)
                             return jsonify({"message": "Unable get sessions!, no kernels!"}), 400
                         else:
                             kernel = kernel_ids[0]
 
                     except Exception as e:
-                        send_event_handler("sjduler-error", {"msg": "Unable get sessions!"}, email, cx, scheduler_id)
+                        send_event_handler("scheduler-error", {"msg": "Unable get sessions!"}, email, cx, scheduler_id)
                         return jsonify({"message": "Unable get sessions!"}), 400
 
                     try:
@@ -275,26 +275,26 @@ def handler(request):
                         
                         msg = "Scheduler finish" if count_error == 0 else "Scheduler error"
                         
-                        send_event_handler("sjduler-finish", {"msg": msg}, email, cx, scheduler_id)
+                        send_event_handler("scheduler-finish", {"msg": msg}, email, cx, scheduler_id)
                         return jsonify({"path": path, "message": "Finished", "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results), "total": count, "results": results}), 200
                     except Exception as e:
                         print("Error get cells")
                         # get error location
                         print(e.__traceback__.tb_lineno)
                         print(str(e))
-                        send_event_handler("sjduler-error", {"msg": f'Error get cells {str(e)}'}, email, cx, scheduler_id)
+                        send_event_handler("scheduler-error", {"msg": f'Error get cells {str(e)}'}, email, cx, scheduler_id)
                         return jsonify({"message": str(e)}), 400
                     
                 except Exception as e:
                     print("Error get execute")
                     print(str(e))
-                    send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
+                    send_event_handler("scheduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
                     return jsonify({"message": str(e)}), 400
 
             except Exception as e:
                 print("Error get notebooks")
                 print(str(e))
-                send_event_handler("sjduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
+                send_event_handler("scheduler-error", {"msg": f'{str(e)}'}, email, cx, scheduler_id)
                 return jsonify({"message": str(e)}), 400
             
         except Exception as e:
