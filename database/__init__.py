@@ -16,7 +16,7 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     now_time = last_run
     
     # change now_time to timestamp
-    now_time = now_time.timestamp()
+    # now_time = now_time.timestamp()
     
     # validate last_run null
     if pb_last_run == None or pb_last_run == "":
@@ -59,8 +59,8 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
         
         data = {
             "lastRun": str(last_run),
-            # "nextRun": str(next_run),
-            "nextRun": str(next_run.timestamp()),
+            "nextRun": str(next_run),
+            # "nextRun": str(next_run.timestamp()),
             "status": status,
         }
     
