@@ -1,12 +1,12 @@
-import websockets
+import asyncio
+import os
 import json
 import uuid
 from datetime import datetime
-import time
+import websockets
+# import time
 import requests
-import asyncio
 from flask import jsonify
-import os
 from solr import handler as solr_handler
 from elastic import handler as elastic_handler
 from database import scheduler_update as scheduler_update_handler
@@ -154,7 +154,7 @@ def handler(request):
         r = requests.get(f"{os.environ.get('PB_SCHEDULER_URL')}/{scheduler_id}",
                          headers={
                              "Authorization": f"Bearer {pb_token}"
-                         }
+                         }, timeout=30
                          )
         r.raise_for_status()
         scheduler = r.json()
@@ -168,7 +168,7 @@ def handler(request):
             r = requests.get(f"{os.environ.get('PB_USER_URL')}/{pb_user}",
                              headers={
                                  "Authorization": f"Bearer {pb_token}"
-                             }
+                             }, timeout=30
                              )
             r.raise_for_status()
             res = r.json()
@@ -188,16 +188,16 @@ def handler(request):
             try:
                 notebooks_url = f'{api_url}/contents'
                 r = requests.get(notebooks_url, headers={
-                    'Authorization': f'token {token}'})
+                    'Authorization': f'token {token}'}, timeout=30)
                 r.raise_for_status()
-                notebooks = r.json()
+                # notebooks = r.json()
 
                 # print(notebooks)
 
                 try:
                     execute_url = f'{api_url}/contents/{path}'
                     r = requests.get(execute_url, headers={
-                        'Authorization': f'token {token}'}, json={})
+                        'Authorization': f'token {token}'}, json={}, timeout=30)
                     r.raise_for_status()
 
                     response = r.json()
@@ -210,13 +210,13 @@ def handler(request):
                         # print(sessions_uri)
 
                         rr = requests.get(sessions_uri, headers={
-                            'Authorization': f'token {token}'}, json={})
+                            'Authorization': f'token {token}'}, json={}, timeout=30)
                         rr.raise_for_status()
 
                         responser = rr.json()
                         # print(responser)
 
-                        if not len(responser):
+                        if len(responser) == 0:
                             send_event_handler(
                                 "scheduler-error", {"msg": "Unable get sessions!, no sessions!"}, email, cx, scheduler_id)
                             return jsonify({"message": "Unable get sessions!, no sessions!"}), 400
@@ -225,14 +225,14 @@ def handler(request):
                                       for item in responser if item["path"] == path]
                         # print(kernel_ids)
 
-                        if not len(kernel_ids):
+                        if len(kernel_ids) == 0:
                             send_event_handler(
                                 "scheduler-error", {"msg": "Unable get sessions!, no kernels!"}, email, cx, scheduler_id)
                             return jsonify({"message": "Unable get sessions!, no kernels!"}), 400
                         else:
                             kernel = kernel_ids[0]
 
-                    except Exception as e:
+                    except Exception:
                         send_event_handler(
                             "scheduler-error", {"msg": "Unable get sessions!"}, email, cx, scheduler_id)
                         return jsonify({"message": "Unable get sessions!"}), 400
@@ -264,6 +264,57 @@ def handler(request):
 
                             if results[-1]['status'] == 'error':
                                 break
+
+                        # save notebook
+                        save_body_cells = []
+
+                        for item in results:
+                            save_body_cells.append(
+                                {
+                                    "cell_type": item['cell_type'],
+                                    "source": item['cell-value'],
+                                    "metadata": {
+                                        "trusted": True,
+                                        "lastRun": last_run,
+                                        "sapujagad": None
+                                    },
+                                    "outputs": [
+                                        {
+                                            "name": "stdout",
+                                            "text": item['msg'] if item['status'] == 'error' else "Success",
+                                            "output_type": "stream"
+                                        }
+                                    ],
+                                    "execution_count": 2
+                                })
+
+                        save_body = {
+                            "content": {
+                                "cells": save_body_cells,
+                                "metadata": {},
+                                "nbformat": 4,
+                                "nbformat_minor": 5
+                            },
+                            "created": last_run,
+                            "format": "json",
+                            "last_modified": last_run,
+                            "mimetype": None,
+                            "name": "test.ipynb",
+                            "path": "test.ipynb",
+                            "size": 72,
+                            "type": "notebook",
+                            "writable": True,
+                            "status": 200
+                        }
+
+                        try:
+                            save_url = f"{api_url}/contents/{path}"
+                            save_res = requests.post(save_url, headers={
+                                'Authorization': f'token {token}'}, json=save_body, timeout=30)
+                            save_res.raise_for_status()
+                            print(save_res.json())
+                        except Exception as e:
+                            print(f"Error save notebook {e}")
 
                         # print(results)
                         count_ok = 0
