@@ -265,52 +265,15 @@ def handler(request):
                             if results[-1]['status'] == 'error':
                                 break
 
-                        # save notebook
-                        save_body_cells = []
-
-                        for item in results:
-                            save_body_cells.append(
-                                {
-                                    "cell_type": item['cell_type'],
-                                    "source": item['cell-value'],
-                                    "metadata": {
-                                        "trusted": True,
-                                        "lastRun": last_run,
-                                        "sapujagad": None
-                                    },
-                                    "outputs": [
-                                        {
-                                            "name": "stdout",
-                                            "text": item['msg'] if item['status'] == 'error' else "Success",
-                                            "output_type": "stream"
-                                        }
-                                    ],
-                                    "execution_count": 2
-                                })
-
-                        save_body = {
-                            "content": {
-                                "cells": save_body_cells,
-                                "metadata": {},
-                                "nbformat": 4,
-                                "nbformat_minor": 5
-                            },
-                            "created": last_run,
-                            "format": "json",
-                            "last_modified": last_run,
-                            "mimetype": None,
-                            "name": "test.ipynb",
-                            "path": "test.ipynb",
-                            "size": 72,
-                            "type": "notebook",
-                            "writable": True,
-                            "status": 200
-                        }
+                        # save notebook, update created and last_modified from response
+                        updated_response = response
+                        updated_response['created'] = last_run
+                        updated_response['last_modified'] = last_run
 
                         try:
                             save_url = f"{api_url}/contents/{path}"
                             save_res = requests.post(save_url, headers={
-                                'Authorization': f'token {token}'}, json=save_body, timeout=30)
+                                'Authorization': f'token {token}'}, json=updated_response, timeout=30)
                             save_res.raise_for_status()
                             print(save_res.json())
                         except Exception as e:
