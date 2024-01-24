@@ -33,7 +33,7 @@ def handler(data):
 
         # es.indices.create(index=index_name, body=index_mapping)
 
-        es = Elasticsearch(hosts="http://10.1.111.13:9201")
+        es = Elasticsearch(hosts=elastic_url)
         es.index(index=index_name, document=data, id=document_id)
         print("Success insert data to elastic")
     except Exception as e:
