@@ -279,8 +279,19 @@ def handler(request):
                             response_f = rf.json()
 
                             updated_response = response_f
-                            updated_response['created'] = last_run
                             updated_response['last_modified'] = last_run
+
+                            cells = updated_response['content']['cells']
+                            # add lastRun to cell metadata if the cell is executed
+
+                            for index, cell in enumerate(cells):
+                                if index < len(results):
+                                    if results[index]['status'] == 'ok':
+                                        cell['metadata']['lastRun'] = last_run
+                                    elif results[index]['status'] == 'error':
+                                        cell['metadata']['lastRun'] = last_run
+
+                            updated_response['content']['cells'] = cells
 
                             print("updated_response", updated_response)
 
