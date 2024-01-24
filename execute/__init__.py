@@ -303,7 +303,7 @@ def handler(request):
                         count = len(cells)
 
                         for result in results:
-                            if result['status'] == 'Success':
+                            if result['status'] == 'ok':
                                 count_ok += 1
                             elif result['status'] == 'error':
                                 count_error += 1
