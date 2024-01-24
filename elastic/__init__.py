@@ -5,7 +5,7 @@ from elasticsearch.helpers import bulk
 from elasticsearch.client import XPackClient
 
 elastic_url = os.environ.get('ELASTIC_URL')
-print(elastic_url)
+print("ELASTIC_URL: ", elastic_url)
 
 
 def handler(data):
@@ -33,7 +33,7 @@ def handler(data):
 
         # es.indices.create(index=index_name, body=index_mapping)
 
-        es = Elasticsearch(hosts=elastic_url)
+        es = Elasticsearch(hosts="http://10.1.111.13:9201")
         es.index(index=index_name, document=data, id=document_id)
         print("Success insert data to elastic")
     except Exception as e:

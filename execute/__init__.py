@@ -116,9 +116,13 @@ def handler(request):
         return jsonify({"message": "User is required!"}), 400
 
     user = body["user"]
+    uid = body["userId"]
 
     if user is None or user == "":
         return jsonify({"message": "User is required!"}), 400
+
+    if uid is None or uid == "":
+        return jsonify({"message": "User id is required!"}), 400
 
     jupyter_url = f"{jupyter_url_env}:{port}"
     # /user/jupyter/api/contents
@@ -266,18 +270,32 @@ def handler(request):
                                 break
 
                         # save notebook, update created and last_modified from response
-                        updated_response = response
-                        updated_response['created'] = last_run
-                        updated_response['last_modified'] = last_run
-
                         try:
-                            save_url = f"{api_url}/contents/{path}"
-                            save_res = requests.post(save_url, headers={
-                                'Authorization': f'token {token}'}, json=updated_response, timeout=30)
-                            save_res.raise_for_status()
-                            print(save_res.json())
+                            execute_url = f'{api_url}/contents/{path}'
+                            rf = requests.get(execute_url, headers={
+                                'Authorization': f'token {token}'}, json={}, timeout=30)
+                            rf.raise_for_status()
+
+                            response_f = rf.json()
+
+                            updated_response = response_f
+                            updated_response['created'] = last_run
+                            updated_response['last_modified'] = last_run
+
+                            print("updated_response", updated_response)
+
+                            try:
+                                save_url = f"{api_url}/contents/{path}"
+                                save_res = requests.put(save_url, headers={
+                                    'Authorization': f'token {token}'}, json=updated_response, timeout=30)
+                                save_res.raise_for_status()
+                                print("Success save notebook")
+
+                            except Exception as e:
+                                print(f"Error save notebook {e}")
+
                         except Exception as e:
-                            print(f"Error save notebook {e}")
+                            print(f'Error get notebook {e}')
 
                         # print(results)
                         count_ok = 0
@@ -291,7 +309,7 @@ def handler(request):
                                 count_error += 1
 
                         elastic_handler(
-                            {"path": path, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
+                            {"path": path, "uid": uid, "scheduler_id": scheduler_id, "date": f"{last_run}", "results": json.dumps(
                                 results, indent=4, sort_keys=True, default=str), "sucsess": count_ok, "error": count_error, "executed": len(results), "unexecuted": count-len(results)})
                         status = "success" if count_error == 0 else "failed"
 
