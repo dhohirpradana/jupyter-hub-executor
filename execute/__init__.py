@@ -17,7 +17,7 @@ from kernel import restart as restart_kernel
 
 jupyter_url_env = os.environ.get('JUPYTER_URL')
 jupyter_ws_env = os.environ.get('JUPYTER_WS')
-# token = os.environ.get('JUPYTER_TOKEN')
+token = os.environ.get('JUPYTER_TOKEN')
 
 # api_url = f"{jupyter_url}/api"
 
@@ -27,8 +27,8 @@ async def execute_ws(index, cell_source, kernel, token, jupyter_ws, api_url):
     now = datetime.now()
     formatted_date = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-    uri = f"{jupyter_ws}/api/kernels/{kernel}/channels?session_id={uuid4}&token={token}"
-    # print("uri", uri)
+    uri = f"{jupyter_ws}/user/jupyter/api/kernels/{kernel}/channels?session_id={uuid4}&token={token}"
+    print("uri", uri)
 
     message = {
         "header": {
@@ -98,20 +98,16 @@ async def execute_ws(index, cell_source, kernel, token, jupyter_ws, api_url):
 def handler(request):
     body = request.get_json()
     cron_param = request.args.get('cron')
-    port = request.args.get('port')
-    token = request.args.get('token')
+    # port = request.args.get('port')
+    # token = request.args.get('token')
     last_run = datetime.now()
     if cron_param == "1":
         cx = True
     else:
         cx = False
         
-    if port is None or port == "":
-        return jsonify({"message": "Port is required!"}), 400
-    
-    jupyter_url = f"{jupyter_url_env}:{port}"
-    api_url = f"{jupyter_url}/api"
-    jupyter_ws = f"{jupyter_ws_env}:{port}"
+    # if port is None or port == "":
+    #     return jsonify({"message": "Port is required!"}), 400
     
     if token is None or token == "":
         return jsonify({"message": "Token is required!"}), 400
@@ -165,6 +161,16 @@ def handler(request):
             )
             r.raise_for_status()
             res = r.json()
+            # print("Res", res)
+            port = res["jPort"]
+            
+            if port is None or port == "":
+                return jsonify({"message": "Port is required!"}), 400
+            
+            jupyter_url = f"{jupyter_url_env}:{port}"
+            api_url = f"{jupyter_url}/user/jupyter/api"
+            # print("API URL:", api_url)
+            jupyter_ws = f"{jupyter_ws_env}:{port}"
             
             pb_last_run = scheduler["lastRun"]
             path = scheduler["pathNotebook"]
@@ -259,7 +265,7 @@ def handler(request):
                         count = len(cells)
 
                         for result in results:
-                            if result['status'] == 'Success':
+                            if result['status'] == 'ok':
                                 count_ok += 1
                             elif result['status'] == 'error':
                                 count_error += 1

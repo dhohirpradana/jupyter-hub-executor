@@ -37,21 +37,23 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
             "status": status,
         }
     else:
-        pb_last_run = datetime.strptime(pb_last_run, '%Y-%m-%d %H:%M:%S.%fZ')
+        # pb_last_run = datetime.strptime(pb_last_run, '%Y-%m-%d %H:%M:%S.%fZ')
         
         # pb lastrun set second to 0
-        pb_last_run = pb_last_run.replace(second=0)
+        # pb_last_run = pb_last_run.replace(second=0)
         
         # Create a croniter object
-        cron = croniter(cron_expression, pb_last_run)
+        # cron = croniter(cron_expression, pb_last_run)
 
         # Get the next run time after the current time
-        next_run = cron.get_next(datetime)
-        while next_run < now_time:
-            cron = croniter(cron_expression, next_run)
-            next_run = cron.get_next(datetime)
+        # next_run = cron.get_next(datetime)
+        # while next_run < now_time:
+        #     cron = croniter(cron_expression, next_run)
+        #     next_run = cron.get_next(datetime)
             
-        print("Next run time:", next_run)
+        # print("Next run time:", next_run)
+        
+        next_run = ""
         
         data = {
             "lastRun": str(last_run),
