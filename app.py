@@ -9,7 +9,6 @@ from pb_token import token_get as token_handler
 # List of required environment variables
 required_env_vars = ["JUPYTER_URL",
                      "JUPYTER_WS", "JUPYTER_TOKEN", "ELASTIC_URL", "PB_LOGIN_URL", "PB_MAIL", "PB_PASSWORD", "PB_SCHEDULER_URL", "EVENT_URL"]
-# raise EnvironmentError(f"Required environment variable {env_var} is not set.")
 
 def validate_envs():
     for env_var in required_env_vars:
