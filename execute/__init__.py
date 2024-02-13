@@ -128,11 +128,6 @@ def handler(request):
     if uid is None or uid == "":
         return jsonify({"message": "User id is required!"}), 400
 
-    jupyter_url = f"{jupyter_url_env}:{port}"
-    # /user/jupyter/api/contents
-    api_url = f"{jupyter_url}/user/{user}/api"
-    jupyter_ws = f"{jupyter_ws_env}:{port}"
-
     if token is None or token == "":
         return jsonify({"message": "Token is required!"}), 400
 
@@ -185,6 +180,11 @@ def handler(request):
             
             if port is None or port == "":
                 return jsonify({"message": "Port is required!"}), 400
+            
+            jupyter_url = f"{jupyter_url_env}:{port}"
+            # /user/jupyter/api/contents
+            api_url = f"{jupyter_url}/user/jupyter/api"
+            jupyter_ws = f"{jupyter_ws_env}:{port}"
             
             jupyter_url = f"{jupyter_url_env}:{port}"
             api_url = f"{jupyter_url}/user/jupyter/api"
