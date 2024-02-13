@@ -1,11 +1,12 @@
+import os
+import uuid
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from elasticsearch.client import XPackClient
-import os
-import uuid
 
-elastic_url = os.environ.get('ELASTIC_URL', 'http://103.127.97.245:9200')
-print(elastic_url)
+elastic_url = os.environ.get('ELASTIC_URL')
+print("ELASTIC_URL: ", elastic_url)
+
 
 def handler(data):
     index_name = "sapujagadv2_scheduler"
@@ -14,6 +15,24 @@ def handler(data):
     document_id = uuid4
 
     try:
+        # Define the index mapping
+        # index_mapping = {
+        #     "mappings": {
+        #         "properties": {
+        #             "lastRun": {
+        #                 "type": "date",
+        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        #             },
+        #             "nextRun": {
+        #                 "type": "date",
+        #                 "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        #             },
+        #         }
+        #     }
+        # }
+
+        # es.indices.create(index=index_name, body=index_mapping)
+
         es = Elasticsearch(hosts=elastic_url)
         es.index(index=index_name, document=data, id=document_id)
         print("Success insert data to elastic")

@@ -1,37 +1,39 @@
-import requests
 import os
+import requests
+# from croniter import croniter
 from pb_token import token_get as token_handler
-from flask import jsonify
-from datetime import datetime
-from croniter import croniter
 
 scheduler_url = os.environ.get('PB_SCHEDULER_URL')
 notification_url = os.environ.get('PB_NOTIFICATION_URL')
 
+
 def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
     print("update scheduler")
-    
+
     # set last_run second to 0
-    last_run = last_run.replace(second=0)
+    # last_run = last_run.replace(second=0)
     now_time = last_run
-    
+
+    # change now_time to timestamp
+    # now_time = now_time.timestamp()
+
     # validate last_run null
-    if pb_last_run == None or pb_last_run == "":
+    if pb_last_run is None or pb_last_run == "":
         pb_last_run = now_time
-    
+
     print({
         "id": id,
         "status": status,
         "pb_last_run": pb_last_run,
         "cron_expression": cron_expression
     })
-    
+
     token = token_handler()
     if token == "":
         # return jsonify({"message": "Error get pb token!"}), 500
         print("Error get pb token!")
 
-    if cron_expression == False:
+    if cron_expression is False:
         data = {
             "lastRun": str(last_run),
             "status": status,
@@ -58,53 +60,62 @@ def scheduler_update(id, status, last_run, pb_last_run, cron_expression):
         data = {
             "lastRun": str(last_run),
             "nextRun": str(next_run),
+            # "nextRun": str(next_run.timestamp()),
             "status": status,
         }
-    
+
     url = scheduler_url + f'/{id}'
     headers = {
         'Authorization': f'Bearer {token}',
     }
-    
+
     print("url", url)
     print("headers", headers)
     print("data", data)
 
     try:
         r = requests.patch(url,
-                           headers=headers, json=data)
+                           headers=headers, json=data, timeout=10)
 
         r.raise_for_status()
         print("Update scheduler successfully", r.json())
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print("Update scheduler unsuccess!")
         print(e)
 
-def notification_create(scheduler, type, status, msg, is_cron, user):
-    print("create notification")
+
+def notification_create(scheduler, sch_type, status, msg, is_cron, user):
+    print({
+        "scheduler": scheduler,
+        "type": type,
+        "status": status,
+        "msg": msg,
+        "is_cron": is_cron,
+        "user": user
+    })
     token = token_handler()
-    if token_handler == "":
+    if token == "":
         # return jsonify({"message": "Error get pb token!"}), 500
         print("Error get pb token!")
-        
+
     url = notification_url
     headers = {
         'Authorization': f'Bearer {token}',
     }
-    
+
     try:
         r = requests.post(url,
                           headers=headers, json={
                               "scheduler": scheduler,
-                              "type": type,
+                              "type": sch_type,
                               "status": status,
                               "message": msg,
                               "isCron": is_cron,
                               "user": user
-                          })
+                          }, timeout=10)
 
         r.raise_for_status()
         print("Create notification successfully", r.json())
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print("Create notification unsuccess!")
         print(e)

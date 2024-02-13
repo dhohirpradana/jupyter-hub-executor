@@ -8,7 +8,12 @@ from pb_token import token_get as token_handler
 
 # List of required environment variables
 required_env_vars = ["JUPYTER_URL",
+<<<<<<< HEAD
                      "JUPYTER_WS", "JUPYTER_TOKEN", "ELASTIC_URL", "PB_LOGIN_URL", "PB_MAIL", "PB_PASSWORD", "PB_SCHEDULER_URL", "EVENT_URL"]
+=======
+                     "JUPYTER_WS", "ELASTIC_URL", "PB_LOGIN_URL", "PB_MAIL", "PB_PASSWORD", "PB_SCHEDULER_URL", "EVENT_URL", "JUPYTER_TOKEN"]
+# raise EnvironmentError(f"Required environment variable {env_var} is not set.")
+>>>>>>> 872810911f6efb3ff5f1cc6769cbb888bf22f1a4
 
 def validate_envs():
     for env_var in required_env_vars:
@@ -31,5 +36,5 @@ def api_endpoint():
 if __name__ == "__main__":
     # Load SSL certificate and key
     # ssl_context = ("cert.pem", "key.pem")
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
     # app.run(debug=True, ssl_context=ssl_context)
