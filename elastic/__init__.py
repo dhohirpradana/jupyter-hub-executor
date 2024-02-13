@@ -13,6 +13,8 @@ def handler(data):
     # document_type = "scheduler"
     uuid4 = uuid.uuid4()
     document_id = uuid4
+    
+    print("DATA: ", data)
 
     try:
         # Define the index mapping

@@ -102,6 +102,8 @@ def handler(request):
     # port = request.args.get('port')
     # token = request.args.get('token')
     last_run = datetime.now()
+    last_run = last_run.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    
     if cron_param == "1":
         cx = True
     else:
